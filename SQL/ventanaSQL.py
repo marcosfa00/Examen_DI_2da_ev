@@ -1,12 +1,8 @@
 import sys
-
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
 from PyQt6.QtSql import QSqlDatabase, QSqlTableModel
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QPushButton,
-                             QGridLayout, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox, QListWidget,
-                             QComboBox, QFrame, QSlider, QGroupBox, QTableWidget, QTableView, QLineEdit)
-
+                             QVBoxLayout, QHBoxLayout, QTableView)
 
 class VentanaTabla(QMainWindow):
     def __init__(self):
@@ -22,53 +18,40 @@ class VentanaTabla(QMainWindow):
         main_layout.addLayout(parte1)
         main_layout.addLayout(parte2)
 
-        # establecemos que tipo de base de datos es
+        # Establecemos qué tipo de base de datos es
         miBaseDeDatos = QSqlDatabase("QSQLITE")
         miBaseDeDatos.setDatabaseName("database.dat")
         miBaseDeDatos.open()
 
-        # creamos la tabla
-        cuadradoTabla = QWidget()
-        layoutTabla = QHBoxLayout()
-
-        # creamso elemento tabla
+        # Creamos la tabla
         tabla = QTableView()
-        modelo = QSqlTableModel(db =miBaseDeDatos)
+        modelo = QSqlTableModel(db=miBaseDeDatos)
         tabla.setModel(modelo)
 
-        # a mayores por ser SQL
+        # Añadimos por ser SQL
         modelo.setTable("usuarios")
         modelo.select()
 
-        layoutTabla.addWidget(tabla)
-        cuadradoTabla.setLayout(layoutTabla)
-
-        parte1.addWidget(cuadradoTabla)
-
+        parte1.addWidget(tabla)
 
         botonera = QWidget()
         layoutBotones = QHBoxLayout()
-        nuevoElemento =  ['1234E', 'Perez', 30, 'Hombre', True]
 
-        botonAdd= QPushButton('añadir')
-        botonAdd.clicked.connect(lambda: self.botonAdd(modelo, nuevoElemento))
+        botonAdd = QPushButton('Añadir')
+        botonAdd.clicked.connect(lambda: self.botonAdd(modelo))
+
+        botonEliminar = QPushButton("Eliminar")
+        botonEliminar.clicked.connect(lambda: self.eliminarElemento(modelo, tabla))
+
+        botonGuardar = QPushButton('Guardar')
+        botonGuardar.clicked.connect(lambda: self.botonSave(modelo))
 
         layoutBotones.addWidget(botonAdd)
+        layoutBotones.addWidget(botonEliminar)  # Corregido el nombre del botón
+        layoutBotones.addWidget(botonGuardar)
         botonera.setLayout(layoutBotones)
 
         parte2.addWidget(botonera)
-
-
-
-
-
-
-
-
-
-
-
-
 
         container = QWidget()
         container.setLayout(main_layout)
@@ -79,9 +62,18 @@ class VentanaTabla(QMainWindow):
         # Mostramos la ventana
         self.show()
 
+    def eliminarElemento(self, modelo, tabla):
+        # Obtener el índice de la fila seleccionada
+        indice_fila_seleccionada = tabla.currentIndex().row()
+        # Verificar si hay una fila seleccionada
+        if indice_fila_seleccionada >= 0:
+            # Eliminar la fila seleccionada
+            modelo.removeRow(indice_fila_seleccionada)
+            # Confirmar los cambios en la base de datos
+            modelo.submitAll()
 
-
-    def botonAdd(self, modelo, nuevoElemento):
+    def botonAdd(self, modelo):
+        nuevoElemento = ['Juan', 'Perez', 30, 'Hombre', True]
         # Obtener el número de filas actual
         numRows = modelo.rowCount()
 
@@ -95,15 +87,11 @@ class VentanaTabla(QMainWindow):
         # Confirmar los cambios en la base de datos
         modelo.submitAll()
 
+    def botonSave(self, modelo):
+        modelo.submitAll()
+
 
 if __name__ == "__main__":
-        aplicacion = QApplication(sys.argv)
-        ventana = VentanaTabla()
-        sys.exit(aplicacion.exec())
-
-
-
-
-
-
-
+    aplicacion = QApplication(sys.argv)
+    ventana = VentanaTabla()
+    sys.exit(aplicacion.exec())
