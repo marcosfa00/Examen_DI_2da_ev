@@ -23,9 +23,13 @@ class VentanaTabla(QMainWindow):
         miBaseDeDatos.setDatabaseName("database.dat")
         miBaseDeDatos.open()
 
+
         # Creamos la tabla
         tabla = QTableView()
         modelo = QSqlTableModel(db=miBaseDeDatos)
+        # self.modelo.setEditStrategy(QSqlTableModel.EditStrategy.OnFieldChange)
+        # self.modelo.setEditStrategy(QSqlTableModel.EditStrategy.OnRowChange)
+        modelo.setEditStrategy(QSqlTableModel.EditStrategy.OnManualSubmit)
         tabla.setModel(modelo)
 
         # Añadimos por ser SQL
@@ -34,6 +38,8 @@ class VentanaTabla(QMainWindow):
 
         parte1.addWidget(tabla)
 
+
+        # botonera
         botonera = QWidget()
         layoutBotones = QHBoxLayout()
 
@@ -61,6 +67,10 @@ class VentanaTabla(QMainWindow):
 
         # Mostramos la ventana
         self.show()
+
+
+
+
 
     def eliminarElemento(self, modelo, tabla):
         # Obtener el índice de la fila seleccionada
