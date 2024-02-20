@@ -64,6 +64,12 @@ class ModeloTabla(QAbstractTableModel):
                         return QIcon("uncheck.png")
 
 
+    def removeRow(self, row, parent=QModelIndex()):
+        self.beginRemoveRows(parent, row, row)
+        del self.tabla[row]
+        self.endRemoveRows()
+        return True
+
 
 
 
